@@ -38,4 +38,26 @@ app.post("/scrape/", async (req, res) => {
   }
 });
 
+app.post('/scrape/text', async (req,res) => {
+  const { url } = req.body;
+
+  const fetchData = async () => {
+    try {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto(url);
+
+      const html = await page.content();
+
+      const screenshotBuffer = await page.screenshot({ fullPage: true });
+
+      await browser.close();
+
+      return { html, screenshot: screenshotBuffer.toString('base64') };
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+})
+
 app.listen(PORT, () => console.log(`Running on Port: ${PORT}`));
