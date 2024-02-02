@@ -20,6 +20,7 @@ const Selector = () => {
       });
       setHtml(response.data.html);
       localStorage.setItem("site", response.data.html);
+      localStorage.setItem("siteName", site);
     } catch (error) {
       console.error("Error fetching data:", error);
       setError("Error fetching data");

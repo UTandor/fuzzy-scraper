@@ -15,15 +15,11 @@ app.post("/scrape/", async (req, res) => {
       const page = await browser.newPage();
       await page.goto(url);
 
-      // Extract HTML content
       const html = await page.content();
-
-      // Take a screenshot of the whole page
-      const screenshotBuffer = await page.screenshot({ fullPage: true });
-
+      const innerText = await page.evaluate(() => document.body.innerText);
       await browser.close();
 
-      return { html, screenshot: screenshotBuffer.toString('base64') };
+      return { html, innerText };
     } catch (e) {
       console.error(e);
       throw e;
@@ -37,27 +33,4 @@ app.post("/scrape/", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
-
-app.post('/scrape/text', async (req,res) => {
-  const { url } = req.body;
-
-  const fetchData = async () => {
-    try {
-      const browser = await puppeteer.launch();
-      const page = await browser.newPage();
-      await page.goto(url);
-
-      const html = await page.content();
-
-      const screenshotBuffer = await page.screenshot({ fullPage: true });
-
-      await browser.close();
-
-      return { html, screenshot: screenshotBuffer.toString('base64') };
-    } catch (e) {
-      console.error(e);
-      throw e;
-    }
-})
-
 app.listen(PORT, () => console.log(`Running on Port: ${PORT}`));
