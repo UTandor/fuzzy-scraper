@@ -6,38 +6,67 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { cn } from "@/lib/utils";
-import { Key } from "lucide-react";
 
 const Editor = () => {
   const [site, setSite] = useState<string | null>(localStorage.getItem("site"));
   const [innerText, setInnerText] = useState("");
+  const [renderInnerText, setRenderInnerText] = useState<string[] | null>([]);
   const [loading, setLoading] = useState(true);
   const siteName = localStorage.getItem("siteName");
 
   useEffect(() => {
     const fetchData = async () => {
-      console.log(siteName);
-      try {
+      if (siteName) {
         setLoading(true);
-        const response = await axios.post("http://localhost:3000/scrape/", {
-          url: siteName,
-        });
-        setSite(response.data.html);
-        setInnerText(response.data.innerText);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
+        try {
+          const response = await axios.post("http://localhost:3000/scrape/", {
+            url: siteName,
+          });
+          setSite(response.data.html);
+          setInnerText(response.data.innerText);
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        } finally {
+          setLoading(false);
+        }
       }
     };
 
     fetchData();
   }, [siteName]);
 
+  const getInnerText = async () => {
+    setLoading(true);
+    const words = innerText.match(/\b\w+\b/g);
+
+    const groupedWords = {};
+
+    words.forEach((word) => {
+      const lowercaseWord = word.toLowerCase();
+      if (groupedWords[lowercaseWord]) {
+        groupedWords[lowercaseWord].push(`"${word}"`);
+      } else {
+        groupedWords[lowercaseWord] = [`"${word}"`];
+      }
+    });
+
+    const resultArray = Object.values(groupedWords).flat();
+
+    return resultArray;
+  };
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const arr = await getInnerText();
+      setRenderInnerText(arr);
+    };
+
+    fetchData();
+  }, [innerText]); 
+
   return (
     <div className="h-screen w-full">
-      <ResizablePanelGroup direction="horizontal">
-        {/* Panel for the site content */}
+      <ResizablePanelGroup direction="horizontal" className="border-2">
         <ResizablePanel>
           {site !== null ? (
             <div className="w-full h-full overflow-auto border p-3">
@@ -69,9 +98,8 @@ const Editor = () => {
             </div>
           ) : (
             <div className="w-full h-full overflow-auto border p-3">
-              {innerText.split(" ").map((string, id) => (
-                <p key={id}>{string}</p>
-              ))}
+              {renderInnerText &&
+                renderInnerText.map((string, id) => <p key={id}>{string}</p>)}
             </div>
           )}
         </ResizablePanel>
