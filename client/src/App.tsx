@@ -1,5 +1,5 @@
 import { Routes, Route } from "react-router-dom";
-import Editor from "./components/elements/Editor";
+import Editor from "./components/elements/Main";
 import Selector from "./components/elements/Selector";
 
 function App() {
