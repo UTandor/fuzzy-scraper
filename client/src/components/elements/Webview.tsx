@@ -1,26 +1,4 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-const Webview = () => {
-  const [site, setSite] = useState<string | null>(localStorage.getItem("site"));
-  const siteName = localStorage.getItem("siteName");
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (siteName) {
-        try {
-          const response = await axios.post("http://localhost:3000/scrape/", {
-            url: siteName,
-          });
-          setSite(response.data.html);
-        } catch (error) {
-          console.error("Error fetching data:", error);
-        }
-      }
-    };
-
-    fetchData();
-  }, [siteName]);
-
+const Webview = ({ site }) => {
   return (
     <div className="w-full h-full overflow-auto flex flex-col ">
       <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b  px-6 ">

@@ -9,7 +9,7 @@ import {
   Table,
 } from "@/components/ui/table";
 import { TrashIcon, PencilIcon } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Item {
@@ -17,21 +17,37 @@ interface Item {
   content: string;
 }
 
-const Editor = () => {
+const Editor = ({ site, changeSiteData }) => {
   const [findItem, setFindItem] = useState("");
+  const [found, setFound] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
 
   const addItem = (e: FormEvent) => {
     e.preventDefault();
+
     if (findItem) {
       setItems([...items, { id: items.length + 1, content: findItem }]);
       setFindItem("");
     }
   };
+  const handleCheck = () => {
+    const includedInSite = site.includes(findItem);
+    if (includedInSite) {
+      const newSite = site.replace(new RegExp(`(${findItem})`, 'g'), 'something $1');
+      changeSiteData(newSite, findItem);
+    }
+    console.log("Included in site? ", includedInSite);
+  };
 
   const deleteItem = (id: number) => {
     setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
+
+  useEffect(() => {
+    if (findItem) {
+      handleCheck();
+    }
+  }, [findItem]);
 
   return (
     <div>
@@ -51,9 +67,11 @@ const Editor = () => {
               value={findItem}
               onChange={(e) => setFindItem(e.target.value)}
             />
-            <Button className="ml-auto" size="sm" type="submit">
-              Add to List
-            </Button>
+            <div className="flex flex-row space-x-4">
+              <Button className="ml-auto" size="sm" type="submit">
+                Add to List
+              </Button>
+            </div>
           </form>
           <div className="border shadow-sm rounded-lg">
             <Table>
