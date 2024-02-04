@@ -9,7 +9,7 @@ import {
   Table,
 } from "@/components/ui/table";
 import { LockIcon, PencilIcon } from "lucide-react";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 
 interface Item {
   id: number;
@@ -19,9 +19,10 @@ interface Item {
 const Editor = () => {
   const [findItem, setFindItem] = useState("");
   const [items, setItems] = useState<Item[]>([]);
-  const searchItem = () => {
+  const searchItem = (e: FormEvent) => {
+    e.preventDefault();
     console.log(findItem);
-    setItems([...items, { id: 1, content: findItem }]);
+    setItems([...items, { id: items.length + 1, content: findItem }]);
     setFindItem("");
   };
 
@@ -33,38 +34,41 @@ const Editor = () => {
           <h1 className="font-semibold text-lg md:text-2xl ">Editor</h1>
         </header>
         <main className="flex flex-1 flex-col p-4 md:gap-8 md:p-6">
-          <div className="flex items-center mb-4 space-x-8 justify-between">
+          <form
+            onSubmit={() => searchItem(e)}
+            className="flex items-center mb-4 space-x-8 justify-between"
+          >
             <Input
               className="w-full max-w-sm "
               placeholder="Find text..."
               type="text"
+              value={findItem}
               onChange={(e) => setFindItem(e.target.value)}
             />
-
             <Button className="ml-auto" size="sm" onClick={searchItem}>
               Add to List
             </Button>
-          </div>
+          </form>
           <div className="border shadow-sm rounded-lg">
             <Table>
               <TableHeader className="">
                 <TableRow>
-                  <TableHead>S.No</TableHead>
-                  <TableHead>Content</TableHead>
-                  <TableHead>Modify</TableHead>
+                  <TableHead className="text-center">S.No</TableHead>
+                  <TableHead className="text-center">Content</TableHead>
+                  <TableHead className=" text-center">Modify</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items &&
                   items.map((item) => (
                     <TableRow>
-                      <TableCell>
+                      <TableCell className="text-center">
                         <p className="text-gray-500">{item.id}</p>
                       </TableCell>
                       <TableCell>
-                        <h1 className="text-left">{item.content}</h1>{" "}
+                        <h1 className="text-center">{item.content}</h1>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="flex mx-auto w-full  items-center justify-center">
                         <Button
                           className="rounded-full border border-gray-200 w-8 h-8 dark:border-gray-800"
                           size="icon"
